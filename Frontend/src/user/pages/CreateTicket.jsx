@@ -18,29 +18,37 @@ import {
     ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import { Button } from "../../components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/card";
 import { Textarea } from "../../components/ui/textarea";
 import Tesseract from 'tesseract.js';
 import { translateText, SUPPORTED_LANGUAGES } from '../../services/translationService';
 
+// Safe wrapper function to read from localStorage without crashing in incognito mode
+const getSafeLocalStorage = (key, defaultValue) => {
+  try {
+    const saved = localStorage.getItem(key);
+    return saved !== null ? saved : defaultValue;
+  } catch (error) {
+    console.warn(`LocalStorage blocked or unavailable for key "${key}":`, error);
+    return defaultValue;
+  }
+};
+
 const CreateTicket = () => {
-    const [issue, setIssue] = useState('');
-    const [file, setFile] = useState(null);
-    const [imagePreview, setImagePreview] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [extractedOCR, setExtractedOCR] = useState('');
-    const [isOcrLoading, setIsOcrLoading] = useState(false);
-    const [isListening, setIsListening] = useState(false);
-    const fileInputRef = useRef(null);
-    const navigate = useNavigate();
-    const MAX_CHARS = 1000;
-    const supportsSpeech = 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window;
-    const [selectedLanguage, setSelectedLanguage] = useState('en');
-    const [isTranslating, setIsTranslating] = useState(false);
-    const [isLangOpen, setIsLangOpen] = useState(false);
-    const langRef = useRef(null);
+  const [issue, setIssue] = useState(() => getSafeLocalStorage('ticket_draft_issue', ''));
+  const [selectedLanguage, setSelectedLanguage] = useState(() => getSafeLocalStorage('ticket_draft_lang', 'en'));
+  const [isOcrLoading, setIsOcrLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [fileInputRef, setFileInputRef] = useState(null); // or useRef(null) depending on your original line 46
+  const navigate = useNavigate();
+  const MAX_CHARS = 1000;
+  
+  const supportsSpeech = 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window;
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const langRef = useRef(null);
 
     // Voice UI states
     const [showVoiceModal, setShowVoiceModal] = useState(false);
