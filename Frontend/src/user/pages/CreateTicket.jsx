@@ -701,11 +701,7 @@ const CreateTicket = () => {
                                     Insert Text
                                 </Button>
                             </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
+                   </motion.div>
     );
 };
 
