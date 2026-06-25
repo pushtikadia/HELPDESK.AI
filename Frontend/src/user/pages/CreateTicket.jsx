@@ -24,6 +24,18 @@ import { Textarea } from "../../components/ui/textarea";
 import Tesseract from 'tesseract.js';
 import { translateText, SUPPORTED_LANGUAGES } from '../../services/translationService';
 
+const anonymizePII = (text) => {
+    if (!text) return "";
+    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+    const phoneRegex = /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g;
+    const creditCardRegex = /\b\d{4}[-.\s]?\d{4}[-.\s]?\d{4}[-.\s]?\d{4}\b/g;
+
+    return text
+        .replace(emailRegex, "[EMAIL_REDACTED]")
+        .replace(phoneRegex, "[PHONE_REDACTED]")
+        .replace(creditCardRegex, "[CREDIT_CARD_REDACTED]");
+};
+
 const CreateTicket = () => {
     // Initialize states from localStorage if a draft exists
     const [issue, setIssue] = useState(() => {
@@ -287,7 +299,7 @@ const CreateTicket = () => {
         setError('');
 
         try {
-            let textToSubmit = issue;
+           let textToSubmit = anonymizePII(issue);
 
             if (selectedLanguage !== 'en') {
                 setIsTranslating(true);
